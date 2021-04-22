@@ -17,7 +17,7 @@ class Util:
     def csv_to_dataframe(cls, path, fake_data_index):
         aum = pd.read_csv(path, sep=',', header='infer')
         # create flag for fake data
-        fake_data_flag = [1 if i in set(fake_data_index) else 0 for i in range(len(aum))]  # this takes alot of time
+        fake_data_flag = [1 if i in set(fake_data_index) else 0 for i in aum['sample_id']]  # this takes alot of time
         aum["fake_data_flag"] = fake_data_flag
         return aum
 

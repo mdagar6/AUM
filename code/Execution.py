@@ -11,8 +11,8 @@ from tqdm import tqdm
 import os
 
 class Execution:
-    @staticmethod
-    def training(model, bsize, n_epochs, train_data, lrate, optimizer, with_aum, aum_path=None, aum_calculator=None):
+    @classmethod
+    def training(cls, model, bsize, n_epochs, train_data, lrate, optimizer, with_aum, aum_path=None, aum_calculator=None, evaluate = False, test_data = None):
         dataloader = torch.utils.data.DataLoader(train_data, batch_size=bsize, shuffle=True)
         model.cuda()
         opt = optimizer(params=model.parameters(), lr=lrate)
@@ -41,8 +41,9 @@ class Execution:
 
                 total_train_loss += loss
 
-            print("Train_Loss:", total_train_loss / len(dataloader), "Acc: ", acc / len(train_data))
-
+            print("Train_Loss:", total_train_loss / len(dataloader), "Acc: ", acc / (len(dataloader)*bsize))
+            if evaluate:
+                cls.evaluation(model, test_data, bsize)
         if with_aum:
             if os.path.exists(aum_path+"aum_values.csv"):
                 os.remove(aum_path+"aum_values.csv")
@@ -50,8 +51,8 @@ class Execution:
 
         return model
 
-    @staticmethod
-    def evaluation(model, test_data, bsize):
+    @classmethod
+    def evaluation(cls, model, test_data, bsize):
         test_loader = torch.utils.data.DataLoader(test_data, batch_size=bsize, shuffle=True)
         model.eval()
         acc = 0.0
@@ -61,4 +62,4 @@ class Execution:
             labels = batch['labels'].cuda()
             outputs = model(input_ids, attention_mask, labels=labels)
             acc += torch.sum(outputs.logits.argmax(dim=-1) == labels)
-        print("Test Acc: ", acc / len(test_data))
+        print("Test Acc: ", acc / (len(test_loader)*bsize))
