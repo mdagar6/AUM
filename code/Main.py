@@ -29,7 +29,9 @@ if  __name__ == '__main__':
     synthetic_noise = config["synthetic_noise"]
     synthetic_noise = list(map(float, synthetic_noise.split(",")))
 
-    for seed, noise in zip(random_seed, synthetic_noise):
-        print("For: seed -", seed, "noise -", noise)
-        set_seed(seed)
-        pipeline.run(config,seed, noise)
+    for seed in random_seed: 
+        for noise in synthetic_noise:
+            print("For: seed -", seed, "noise -", noise)
+            set_seed(seed)
+            pipeline.run(config,seed, noise)
+            print("")
